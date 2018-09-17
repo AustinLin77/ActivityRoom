@@ -485,7 +485,8 @@
           if(this.orderStart>userSignTime||this.orderEnd<userSignTime){
             this.yourDialog=true
           }else{
-            if(this.openTime.indexOf(this.selectDay)==-1){
+            console.log(this.openTime)
+            if(this.openTime.indexOf(this.selectDay.toString())==-1){
               this.qDialog=true
             }else{
               var seperator1 = "-";
