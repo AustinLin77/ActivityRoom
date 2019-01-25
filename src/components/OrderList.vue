@@ -55,9 +55,20 @@
       </div>
     </div>
     <div class="outer">
-      <div class="starter" style="width: 100px">已预约人数 : </div>
-      <div class="ender">{{signNum}}人</div>
+      <div class="starter" style="width: 100px" >已预约人数 : </div>
+      <!--<div class="starter" style="width: 100px" v-else>已拼团人数 : </div>-->
+      <div class="enderWithBut" >{{signNum}}人</div>
+      <!--<div class="enderWithBut" v-else>{{groupNum}}人</div>-->
+      <!--<div class="myCancelBut" v-if="showGroup">-->
+        <!--<el-button type="primary" style="height: 40px;width: 80px;padding: 0;"  @click="groupCancel">取消拼团</el-button>-->
+      <!--</div>-->
     </div>
+    <!--<div class="groupPerson" v-if="showGroup">-->
+      <!--<div class="outer" v-for="i in groupPerson">-->
+        <!--<div class="starter">{{i.userName}} : </div>-->
+        <!--<div class="ender">{{i.userNo}}</div>-->
+      <!--</div>-->
+    <!--</div>-->
     <div class="read">
       <el-checkbox v-model="checked"></el-checkbox>
       我阅读了并同意
@@ -76,6 +87,9 @@
   export default {
     data: function () {
       return {
+//        showGroup:false,
+//        groupPerson:[],
+        groupNum:'',
         dateData: [],
         startData:[],
         endData:[],
@@ -182,6 +196,9 @@
         console.log(this.areaName);
         this.areaName='石龙仔'
       }
+      if(this.roomId==16||this.roomId==17||this.roomId==18){
+        this.showGroup=true;
+      }
 //      if(this.roomId==14||this.roomId==15){
 //        this.rules=this.shuqing;
 //      }else if(this.roomId==19){
@@ -208,6 +225,31 @@
       });
     },
     methods: {
+//      groupCancel(){
+//        let vm = this;
+//        $.ajax({
+//          url: vm.pathpar.url+'cancelGroup.json',
+//          dataType: "json",
+//          data: {
+//            token:localStorage.getItem("token"),
+//            roomId:vm.roomId
+//          },
+//          type: "post",
+//          success: function (res) {
+//            console.log(res);
+//            if(res.message=="操作成功"){
+//              vm.$message("取消拼团成功");
+//              vm.dateData=[];
+//              vm.groupPerson=[];
+//              vm.getRoomData();
+//            }else{
+//              vm.$message("您未处于拼团状态中，无需取消拼团");
+//            }
+//          },
+//          error: function () {
+//          }
+//        });
+//      },
       yourClose(){
        this.yourDialog=false;
       },
@@ -222,7 +264,7 @@
       getSignNum(){
         let vm = this;
         $.ajax({
-          url: vm.pathpar.url+'findSurplusPersion.json',
+          url: vm.pathpar+'findSurplusPersion.json',
           dataType: "json",
           data: {
             dateTime:this.signDate,
@@ -282,7 +324,6 @@
         for (var c = 0; c < res.extData.testData.length; c++) {
           res.extData.usingTimeList = res.extData.usingTimeList.concat(res.extData.testData[c])
         }
-
         this.usingTimeList = res.extData.usingTimeList;
         this.usingTimeWeekList = res.extData.usingTimeWeekList;
         this.notStart=res.extData.notStart;
@@ -372,17 +413,22 @@
         }
       },
       myGetDay() {
-        var date = new Date(this.signDate.replace('-', '/'));
-        this.selectDay = date.getDay();
-        if (this.selectDay < 6) {
-          this.startData = this.usingTimeStartList;
-          this.endData = this.testData;
-          this.ifWeek = false
-        } else if (this.selectDay >= 6) {
-          this.startData = this.usingTimeWeekStartList;
-          this.endData = this.testDataWeek;
-          this.ifWeek = true
+        let vm=this;
+        var reg = new RegExp( '-' , "g" )
+        var signDate = this.signDate.replace(reg,'/');
+        var date = new Date(signDate);
+//        this.selectDay = date.getDay();
+        this.selectDay=7
+        if (vm.selectDay < 6) {
+          vm.startData = vm.usingTimeStartList;
+          vm.endData = vm.testData;
+          vm.ifWeek = false
+        } else if (vm.selectDay >= 6) {
+          vm.startData = vm.usingTimeWeekStartList;
+          vm.endData = vm.testDataWeek;
+          vm.ifWeek = true
         }
+
         this.getSignNum();
       },
       getOpenDate(res){
@@ -407,6 +453,7 @@
           strDate = "0" + strDate;
         }
         this.currentDate = year + seperator1 + month + seperator1 + strDate;
+//        this.currentDate='2019-01-06'
         console.log(this.currentDate);
         this.dateData.push({"value":this.currentDate})
 //            this.dateData[this.flag].label=this.currentDate;
@@ -415,7 +462,7 @@
       getRoomData(){
         let vm = this;
         $.ajax({
-          url: vm.pathpar.url+'findActivityRoom.json',
+          url: vm.pathpar+'findActivityRoom.json',
           dataType: "json",
           data: {
             token:localStorage.getItem("token"),
@@ -429,14 +476,28 @@
               vm.isCut=0
             }
             vm.openTime=res.extData.roomInfo.openTime.split(",");
+            vm.groupNum=res.extData.num;
             vm.getCanSign(res);
             vm.getOpenDate(res);
-            vm.dataHandler(res)
+            vm.dataHandler(res);
+//            vm.groupPersonHandler(res.extData)
           },
           error: function () {
           }
         });
       },
+//      groupPersonHandler(data){
+//        let vm = this;
+//        for(var i=0;i<10;i++){
+//          for(var a in data){
+//           if(a=="person"+i){
+//             console.log(data[a])
+//             vm.groupPerson.push(data[a])
+//           }
+//          }
+//        }
+//        console.log(vm.groupPerson)
+//      },
       getCanSign(res){
         var canSignTime=res.extData.roomInfo.orderTime.split(",");
         var seperator1 = "-";
@@ -455,10 +516,10 @@
         this.orderEnd=new Date(currentDate+" "+canSignTime[1]).getTime();
       },
       getAccess(){
-        if(this.roomId==8||this.roomId==6||this.roomId==11||this.roomId==12||this.roomId==13||this.roomId==9){
+        if(this.roomId==8||this.roomId==6||this.roomId==9){
           let vm = this;
           $.ajax({
-            url: vm.pathpar.url+'findisYogaMember.json',
+            url: vm.pathpar+'findisYogaMember.json',
             dataType: "json",
             data: {
               token:localStorage.getItem("token"),
@@ -523,7 +584,7 @@
                 }else{
                   let vm = this;
                   $.ajax({
-                    url: vm.pathpar.url+'saveActivityBook.json',
+                    url: vm.pathpar+'saveActivityBook.json',
                     dataType: "json",
                     data: {
                       token:localStorage.getItem("token"),
@@ -542,8 +603,8 @@
                         },2000)
                       }else if(res.message=='您因爽约超过三次，已被拉入黑名单，请于{0}后再进行预约'){
                         vm.$message('您因爽约超过三次，已被拉入黑名单，请于两个月后再进行预约')
-                      }else{
-                        vm.$message('预约失败,请重新预约')
+                      }else {
+                        vm.$message(res.message)
                       }
 
                     },
@@ -554,7 +615,7 @@
               }else{
                 let vm = this;
                 $.ajax({
-                  url: vm.pathpar.url+'saveActivityBook.json',
+                  url: vm.pathpar+'saveActivityBook.json',
                   dataType: "json",
                   data: {
                     token:localStorage.getItem("token"),
@@ -616,6 +677,23 @@
     font-size: 16px;
     color: darkgrey;
   }
+  .myCancelBut{
+    flex:1;
+    padding-left: 5px;
+    text-align: right;
+  }
+  .enderWithBut{
+    width: 80px;
+    padding-left: 5px;
+    font-size: 16px;
+    color: darkgrey;
+  }
+  .groupPerson{
+    overflow: scroll;
+    padding:0 15px 10px 15px;
+    height: 310px;
+
+  }
   .enderO{
     flex:1;
     padding-left: 5px;
@@ -625,7 +703,7 @@
   }
   .read{
     position: absolute;
-    bottom: 12%;
+    bottom: 10%;
     left: 0;
     height:40px;
     text-align: center;
@@ -634,7 +712,7 @@
   }
   .footB{
     position: absolute;
-    bottom: 3%;
+    bottom: 2%;
     left: 0;
     height:50px;
     text-align: center;

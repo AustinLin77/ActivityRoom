@@ -39,5 +39,7 @@ export default {
  .backgroundlgklgklgk {
   text-indent: 15px;
  }
-
+ #aaaxx .el-button{
+   padding:0;
+ }
 </style>

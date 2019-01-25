@@ -16,10 +16,9 @@ import 'element-ui/lib/theme-chalk/index.css';
 
 
 Vue.prototype.$axios = axios;
-// Vue.prototype.path='http://172.30.128.37:8080/swdAPP/common/activity/';
-Vue.prototype.pathpar=path;
-
-Vue.prototype.token='2caccb2b990526821881f5e3073a8c5b';
+// Vue.prototype.pathpar='http://172.30.128.37:8080/swdAPP/common/activity/';
+Vue.prototype.pathpar='http://appinter.sunwoda.com/common/activity/';
+// Vue.prototype.token='2caccb2b990526821881f5e3073a8c5b';
 /* eslint-disable no-new */
 Vue.use(museUI);
 Vue.use(elementUI);
@@ -28,5 +27,5 @@ new Vue({
   router,
   components: { App },
   template: '<App/>'
-})
+});
 

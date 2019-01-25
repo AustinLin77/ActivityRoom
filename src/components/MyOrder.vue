@@ -21,8 +21,10 @@
       <mu-flat-button slot="actions" @click="close" primary label="取消"/>
       <mu-flat-button slot="actions" primary @click="closeRefresh" label="确定"/>
     </mu-dialog>
-    <order-details-c ref="children" :flag="myFlag" v-on:myRewrite="showBox" v-on:myDelete="myCancel" style="position: absolute;top:50px;left: 0;width: 100%;overflow-y: scroll;height: 100%;padding-bottom: 50px"></order-details-c>
+    <order-details-c ref="children" :flag="myFlag" v-on:myRewrite="showBox" v-on:myDelete="myCancel" v-on:turnBack="myTurnBack"  style="position: absolute;top:50px;left: 0;width: 100%;overflow-y: scroll;height: 100%;padding-bottom: 50px"></order-details-c>
+
     <div>
+
 
     </div>
     <div v-show="flagO" class="help">
@@ -130,7 +132,7 @@
     },
     mounted() {
       let vm = this;
-      console.log(this.pathpar.url);
+      console.log(this.pathpar);
     },
     methods: {
       yourClose() {
@@ -146,7 +148,7 @@
       closeRefresh() {
         let vm = this;
         $.ajax({
-          url: vm.pathpar.url + 'setBespeakStatus.json',
+          url: vm.pathpar + 'setBespeakStatus.json',
           dataType: "json",
           data: {
             bookId: vm.bookId,
@@ -171,6 +173,9 @@
       },
       quxiao() {
         this.flagO = false
+      },
+      myTurnBack(){
+        this.$router.back(-1)
       },
       myCancel(opt) {
         this.bookId = opt.bookId;
@@ -347,7 +352,9 @@
         }
       },
       myGetDay() {
-        var date = new Date(this.signDate.replace('-', '/'));
+        var reg = new RegExp( '-' , "g" )
+        var signDate = this.signDate.replace(reg,'/');
+        var date = new Date(signDate);
         this.selectDay = date.getDay();
         if (this.selectDay < 6) {
           this.startData = this.usingTimeStartList;
@@ -404,7 +411,7 @@
       getRoomData() {
         let vm = this;
         $.ajax({
-          url: vm.pathpar.url +'findActivityRoom.json',
+          url: vm.pathpar +'findActivityRoom.json',
           dataType: "json",
           data: {
             roomId: vm.roomId,
@@ -502,7 +509,7 @@
               }else{
                 let vm = this;
                 $.ajax({
-                  url: vm.pathpar.url+'updateActivityBook.json',
+                  url: vm.pathpar+'updateActivityBook.json',
                   dataType: "json",
                   data: {
                     roomId: vm.roomId,
@@ -531,7 +538,7 @@
             }else{
               let vm = this;
               $.ajax({
-                url: vm.pathpar.url+'updateActivityBook.json',
+                url: vm.pathpar+'updateActivityBook.json',
                 dataType: "json",
                 data: {
                   roomId: vm.roomId,

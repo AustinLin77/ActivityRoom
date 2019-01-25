@@ -38,6 +38,7 @@
 </template>
 
 <script>
+  import ruldata from './rulesData.js'
 export default {
   data () {
     return {
@@ -46,6 +47,7 @@ export default {
       time:'8:30-12:00,14:00-17:30,18:30-21:30',
       roomList:[],
       myArea:'',
+      rules:''
 
     }
   },
@@ -56,10 +58,10 @@ export default {
     let vm=this;
     localStorage.setItem("token",this.$route.query.token);
     console.log(localStorage.getItem("token"));
-    if(localStorage.getItem("token").substr(0,3)=='wx_'){
-      this.pathpar.seturl('http://172.30.128.37:8080/swdAPP/weixin/activity/')
-      console.log(this.pathpar.url);
-    }
+//    if(localStorage.getItem("token").substr(0,3)=='wx_'){
+//      this.pathpar.seturl('http://172.30.128.37:8080/swdAPP/weixin/activity/');
+//      console.log(this.pathpar.url);
+//    }
     this.getAreas();
     this.getActivityRoomList()
 
@@ -73,8 +75,18 @@ export default {
           console.log(vm.myArea)
         }
       }
+      if(vm.value==6){
+        this.rules=ruldata(12060707);
+        this.$alert(this.rules, '预约须知', {
+          dangerouslyUseHTMLString: true
+        });
+//        this.$notify({
+//          title: '预约须知',
+//          message: '周一为闭馆日，所有设施均不开放，文体中心属无烟区'
+//        });
+      }
       $.ajax({
-        url: vm.pathpar.url+'findActivityRoomList.json',
+        url: vm.pathpar+'findActivityRoomList.json',
         dataType: "json",
         data: {
           areaId:vm.value,
@@ -92,14 +104,14 @@ export default {
     getAreas(){
       let vm=this;
       $.ajax({
-        url: vm.pathpar.url+'findActivityFactoryList.json',
+        url: vm.pathpar+'findActivityFactoryList.json',
         dataType: "json",
         data: {
         },
         type: "get",
         success: function (res) {
           console.log(res);
-          vm.options=res.dataInfo.listData
+          vm.options=res.dataInfo.listData;
           console.log(vm.options)
         },
         error: function () {
@@ -109,7 +121,7 @@ export default {
     getActivityRoomList(){
       let vm=this;
       $.ajax({
-        url: vm.pathpar.url+'findActivityRoomList.json',
+        url: vm.pathpar+'findActivityRoomList.json',
         dataType: "json",
         data: {
           areaId:1,
@@ -122,7 +134,7 @@ export default {
           for(var i=0;i<res.dataInfo.listData.length;i++){
             res.dataInfo.listData[i].textData=res.dataInfo.listData[i].usingTime.split(";");
           }
-
+          vm.handleData(res);
         },
         error: function () {
         }
@@ -134,8 +146,27 @@ export default {
       console.log(vm.value)
     },
     orderList(item){
-      const vm=this;
-      vm.$router.push({
+      console.log(item)
+      let vm = this;
+      if(vm.value==6){
+        if(item.roomId==16||item.roomId==17||item.roomId==18||item.roomId==20||item.roomId==11){
+          const vm=this;
+          console.log("ixix")
+          vm.$router.push({
+            name: 'orderList',
+            params: {
+              roomId:item.roomId,
+              roomName:item.roomName,
+              userName:item.userName,
+              areaName:vm.myArea
+            }
+          })
+        }else{
+          return
+        }
+      }else{
+        console.log("oioi")
+        vm.$router.push({
           name: 'orderList',
           params: {
             roomId:item.roomId,
@@ -144,6 +175,9 @@ export default {
             areaName:vm.myArea
           }
         })
+      }
+
+
     },
     handleData(res){
       let vm =this;

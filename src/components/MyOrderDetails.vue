@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div >
     <div class="outer" v-for="item in data">
       <div class="firstD">
         <div class="start">预约号 :  <span style="font-weight: normal;color: blue">{{item.book.bookNo}}</span></div>
@@ -30,6 +30,17 @@
       </div>
       <div style="height: 1px;width: 100%;background-color: #eeeeee;margin-top: 10px"></div>
     </div>
+    <div class="ownerBack" @click="turnBack">
+      <div style="display: flex;align-items: center">
+        <!--<i class="el-icon-d-arrow-left"></i>-->
+        <span class="text"><< 返回</span>
+      </div>
+    </div>
+    <!--<div >-->
+      <!--<el-button  icon="el-icon-arrow-left" class="myBack" @click="turnBack"></el-button>-->
+    <!--</div>-->
+
+
 
   </div>
 
@@ -73,7 +84,7 @@
           getData(a,b){
             let vm=this;
             $.ajax({
-              url: vm.pathpar.url+'findActivityBook.json',
+              url: vm.pathpar+'findActivityBook.json',
               dataType: "json",
               data: {
                 token:localStorage.getItem("token")
@@ -109,12 +120,34 @@
               userName:opt.userName,
               areaName:opt.areaName
             })
+          },
+          turnBack(){
+            let vm=this;
+            this.$emit("turnBack",{
+            })
           }
         }
 
     }
 </script>
-<style scoped>
+<style scoped >
+  .ownerBack{
+    width: 100%;
+    position: fixed;
+    left: 0;
+    bottom: 0;
+    height: 30px;
+    background-color: #eeeeee;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .text{
+    margin-left: 10px;
+    height: 16px;
+    display: flex;
+    align-items: center;
+  }
   .outer{
     width: 100%;
     padding: 10px;
@@ -169,9 +202,19 @@
     font-size: 16px;
   }
   .thirdD{
-
     text-align: right;
-
+  }
+  .myBack{
+    height: 70px;
+    width: 70px;
+    border-radius: 50%;
+    position: fixed;
+    right: 30px;
+    bottom: 50px;
+    border: 1px solid #4682B4;
+    font-size: 18px;
+    color:#4682B4;
+    padding: 0
   }
 </style>
 
